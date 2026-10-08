@@ -1,1 +1,10 @@
-const CACHE="desk-break-v1",ASSETS=["./","index.html","styles.css","app.js","exercises.js","privacy.html","manifest.webmanifest","icons/icon-192.png","icons/icon-512.png","icons/favicon-32.png"];self.addEventListener("install",(e=>{e.waitUntil(caches.open(CACHE).then((e=>e.addAll(ASSETS))).then((()=>self.skipWaiting())))})),self.addEventListener("activate",(e=>{e.waitUntil(caches.keys().then((e=>Promise.all(e.filter((e=>e!==CACHE)).map((e=>caches.delete(e)))))).then((()=>self.clients.claim())))})),self.addEventListener("fetch",(e=>{"GET"===e.request.method&&e.respondWith(caches.match(e.request,{ignoreSearch:!0}).then((t=>t||fetch(e.request))))})),self.addEventListener("notificationclick",(e=>{e.notification.close(),e.waitUntil((async()=>{let t=(await self.clients.matchAll({type:"window",includeUncontrolled:!0}))[0];t?await t.focus():t=await self.clients.openWindow("./"),t&&e.action&&t.postMessage({type:"notification-action",action:e.action})})())}));
+// The web version of this app was retired. Remove its offline cache and this service worker
+// from browsers that installed it, so they load the current site.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    for (const key of await caches.keys()) await caches.delete(key);
+    await self.registration.unregister();
+    for (const client of await self.clients.matchAll({ type: 'window' })) client.navigate(client.url);
+  })());
+});
